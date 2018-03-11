@@ -1,0 +1,16 @@
+## decide between application.properties and application.yml files
+#spring:
+#  mail:
+#    default-encoding: UTF-8
+#    host: 10.102.1.100
+#    username: zFoundServicesMail@haufe-lexware.com
+#    password: NHDirp7fUpSqlXIt+
+#    port: 25
+#    properties:
+#      mail:
+#        smtp:
+#          auth: true
+#          starttls:
+#            enable: true
+#    protocol: smtp
+#    test-connection: false
