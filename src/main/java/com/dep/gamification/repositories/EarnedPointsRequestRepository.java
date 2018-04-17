@@ -11,7 +11,11 @@ import java.util.List;
 public interface EarnedPointsRequestRepository extends MongoRepository<EarnedPointsRequest, String> {
 
     List<EarnedPointsRequest> findAllByBeneficiary(String beneficiary);
+
     EarnedPointsRequest findByEarnedPointsRequestId(String earnedPointsRequestId);
+
+    @Query("{ 'beneficiary' : ?0 }")
+    List<EarnedPointsRequest> findAllByBeneficiaryName(String beneficiaryName);
 
     //@Query("{'beneficiary': ?0, totalEarnedPoints: {$sum: '$numberOfPoints'}")
 //    @Query("db.earnedpointsrequests.aggregate([{ $project: { total: { $sum: '$numberOfPoints'}}}])")

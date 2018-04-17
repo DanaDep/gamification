@@ -28,11 +28,15 @@ public class EarnedPointsRequestService {
     private MailHelper mailHelper;
 
     public EarnedPointsRequest createEarnedPointsRequest(EarnedPointsRequest earnedPointsRequest) {
-        User beneficiary = userService.getUserByUserId(earnedPointsRequest.getBeneficiary());
+        logger.info("LOG: " + earnedPointsRequest.getBeneficiary());
+        User beneficiary = getUserByCompleteName(earnedPointsRequest.getBeneficiary());
         logger.info("LOG: Beneficiary's id is: " + beneficiary.getUserId());
 
-        User requester = userService.getUserByUserId(earnedPointsRequest.getRequester());
+        User requester = getUserByCompleteName(earnedPointsRequest.getRequester());
         logger.info("LOG: Requester's id is: " + requester.getUserId());
+
+        int points = extractPointsFromReason(earnedPointsRequest.getReason());
+        earnedPointsRequest.setNumberOfPoints(points);
 
         String requestId = UUID.randomUUID().toString();
         earnedPointsRequest.setEarnedPointsRequestId(requestId);
@@ -46,6 +50,29 @@ public class EarnedPointsRequestService {
         logger.info("LOG: The earnedPointsRequest will be saved in db");
         return earnedPointsRequestRepository.save(earnedPointsRequest);
 
+    }
+
+    private int extractPointsFromReason(String reason) {
+        logger.info("LOG: " + reason);
+        //boolean noOfPoints = reason.matches(".*\\d+.*");
+        int points = Integer.parseInt(reason.replaceAll("[\\D]", ""));
+        logger.info("LOG: " + points);
+
+        return points;
+    }
+
+    private User getUserByCompleteName(String name) {
+        // split name in firstname and lastname
+        String[] splited = name.split("\\s+");
+        String firstName = splited[0];
+        String lastName = splited[1];
+        logger.info(splited[0]);
+        logger.info(splited[1]);
+
+        User user = userService.getUserByFirstNameAndLastName(firstName, lastName);
+        logger.info("LOG: " + user.getUserId());
+
+        return user;
     }
 
     private boolean notifySupervisor(User beneficiary, User requester, String requestId) {
@@ -120,14 +147,18 @@ public class EarnedPointsRequestService {
 
     public List<EarnedPointsRequest> getAllEarnedPointsRequestsByUserId(String userId) {
         logger.info("LOG: Find all beneficiary's earned points request");
-        return earnedPointsRequestRepository.findAllByBeneficiary(userId);
+//        User user = userService.getUserByUserId(userId);
+//        return earnedPointsRequestRepository.findAllByBeneficiaryName(user.getFirstName() + " " + user.getLastName());
+        return earnedPointsRequestRepository.findAllByBeneficiaryName(userId);
     }
 
-    public int getAllEarnedPointsWhichAUserHas(String beneficiaryId) {
+    public int getAllEarnedPointsWhichAUserHas(String requesterName) {
         int totalEarnedPoints = 0;
-        List<EarnedPointsRequest> earnedPointsRequestList = earnedPointsRequestRepository.findAllByBeneficiary(beneficiaryId);
+        List<EarnedPointsRequest> earnedPointsRequestList = earnedPointsRequestRepository.findAllByBeneficiaryName(requesterName);
         for (EarnedPointsRequest request : earnedPointsRequestList) {
+            logger.info("LOG: REASON FOR EARNED POINTS: " + request.getReason());
             if (RequestState.ACCEPTED.equals(request.getState())) {
+                logger.info("LOG: NO OF EARNED POINTS: " + request.getNumberOfPoints());
                 totalEarnedPoints += request.getNumberOfPoints();
             }
         }

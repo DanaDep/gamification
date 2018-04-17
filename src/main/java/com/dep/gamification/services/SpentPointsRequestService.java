@@ -29,10 +29,12 @@ public class SpentPointsRequestService {
     private MailHelper mailHelper;
 
     public String createSpendPointsRequest(SpentPointsRequest spentPointsRequest) {
-        User requester = userService.getUserByUserId(spentPointsRequest.getRequester());
+        logger.info("LOG: " + spentPointsRequest.getRequester());
+        User requester = getUserByCompleteName(spentPointsRequest.getRequester());
         logger.info("LOG: Requester's id is: " + requester.getUserId());
 
-        boolean requesterHasEnoughPoints = checkRequesterHasEnoughPointsToSpend(requester.getUserId(), spentPointsRequest.getPointsToBeSpent());
+        boolean requesterHasEnoughPoints = checkRequesterHasEnoughPointsToSpend(spentPointsRequest.getRequester(), spentPointsRequest.getPointsToBeSpent());
+        logger.info("LOG: points to be spent: " + spentPointsRequest.getPointsToBeSpent());
         if(requesterHasEnoughPoints){
             String requestId = UUID.randomUUID().toString();
             spentPointsRequest.setSpentPointsRequestId(requestId);
@@ -49,7 +51,7 @@ public class SpentPointsRequestService {
             }
 
         }
-
+        logger.info("The request was unsuccessful because there are not enough points to be spent");
         return "The request was unsuccessful because there are not enough points to be spent";
     }
 
@@ -111,7 +113,7 @@ public class SpentPointsRequestService {
     private void notifyRequester(User requester, String comment) {
         logger.info("LOG: An email will be sent to the requester to announce her/him that spent points request was rejected");
         logger.info("LOG: Creating requester's notification");
-        User supervisor = userService.getUserByUserId(requester.getSupervisor());
+        //User supervisor = userService.getUserByUserId(requester.getSupervisor());
         try {
             String emailContent = mailHelper.createSpentPointsRejectedResponseEmailTemplate(requester, comment);
             mailService.sendMessage(requester.getEmail(), "Gamification: spent points request rejected", emailContent);
@@ -138,12 +140,27 @@ public class SpentPointsRequestService {
         return spentPointsRequestRepository.findAllByRequester(requesterId);
     }
 
-    private boolean checkRequesterHasEnoughPointsToSpend(String userId, int pointsToBeSpent) {
-        int totalPoints = userService.getAllPointsWhichAUserCanSpent(userId);
+    private boolean checkRequesterHasEnoughPointsToSpend(String requesterName, int pointsToBeSpent) {
+        int totalPoints = userService.getAllPointsWhichAUserCanSpent(requesterName);
+        logger.info("Requester has " + totalPoints + " points");
         if (totalPoints > pointsToBeSpent) {
             return true;
         }
         return false;
+    }
+
+    private User getUserByCompleteName(String name) {
+        // split name in firstname and lastname
+        String[] splited = name.split("\\s+");
+        String firstName = splited[0];
+        String lastName = splited[1];
+        logger.info(splited[0]);
+        logger.info(splited[1]);
+
+        User user = userService.getUserByFirstNameAndLastName(firstName, lastName);
+        logger.info("LOG: " + user.getUserId());
+
+        return user;
     }
 
 }

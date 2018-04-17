@@ -17,6 +17,7 @@ public class UserController {
 
     @Autowired private UserService userService;
 
+    // this method is just for me because I do not want to insert users manually in db
     @PostMapping("/creation")
     public ResponseEntity<String> createUser(@RequestBody User user) {
         if (user != null) {
@@ -26,7 +27,9 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).build();
     }
 
-    @GetMapping("/")
+    // TODO: modify the path in frontend
+    @CrossOrigin( origins = "http://localhost:4200")
+    @GetMapping("/status")
     public @ResponseBody ResponseEntity<List<UserStatus>> getStatusForAllUsers(){
         List<UserStatus> users = userService.getStatusForAllUsers();
         if(users != null){
@@ -34,6 +37,33 @@ public class UserController {
         }else{
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+    }
+
+    // TODO: modify the path in frontend
+    @GetMapping("/status/{userId}")
+    public @ResponseBody ResponseEntity<UserDto> getStatusByUserId(@PathVariable String userId){
+        UserDto userDto = null;
+        //if(userId != null){
+            List<User> users = userService.getAllUser();
+            for(User user : users){
+                if(user.getUserId().equals(userId)){
+                    userDto = userService.getStatusByUserId(userId);
+                    return new ResponseEntity<UserDto>(userDto, HttpStatus.OK);
+                }
+            }
+            return new ResponseEntity<UserDto>(userDto, HttpStatus.NOT_FOUND);
+       // }
+       // return new ResponseEntity<UserDto>(userDto, HttpStatus.BAD_REQUEST);
+    }
+
+    @CrossOrigin(origins = "http://localhost:4200")
+    @GetMapping("/beneficiaries")
+    public @ResponseBody ResponseEntity<List<String>> getAllBeneficiariesName(){
+        List<String> beneficiariesName = userService.getAllBeneficiariesName();
+        if(beneficiariesName !=null){
+            return new ResponseEntity<>(beneficiariesName, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @GetMapping("/{userId}")
@@ -44,16 +74,6 @@ public class UserController {
             return new ResponseEntity<User>(user, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    }
-
-    @GetMapping("/{userId}/status")
-    public @ResponseBody ResponseEntity<UserDto> getStatusByUserId(@PathVariable String userId){
-        UserDto userDto = null;
-        if(userId != null){
-            userDto = userService.getStatusByUserId(userId);
-            return new ResponseEntity<UserDto>(userDto, HttpStatus.OK);
-        }
-        return new ResponseEntity<UserDto>(userDto, HttpStatus.NOT_FOUND);
     }
 
 }

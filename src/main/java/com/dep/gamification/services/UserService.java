@@ -36,9 +36,10 @@ public class UserService {
         for(User u : users){
             logger.info("LOG: Set up status for current user: " + u.getEmail());
             UserStatus userStatus = new UserStatus();
+            userStatus.setUserId(u.getUserId());
             userStatus.setFirstname(u.getFirstName());
             userStatus.setLastname(u.getLastName());
-            userStatus.setPoints(getAllPointsWhichAUserCanSpent(u.getUserId()));
+            userStatus.setPoints(getAllPointsWhichAUserCanSpent(u.getFirstName() + " " + u.getLastName()));
 
             usersStatusList.add(userStatus);
         }
@@ -52,26 +53,47 @@ public class UserService {
     }
 
     public UserDto getStatusByUserId(String userId){
-        List<EarnedPointsRequest> earnedPointsRequestList = earnedPointsRequestService.getAllEarnedPointsRequestsByUserId(userId);
-        List<SpentPointsRequest> spentPointsRequestList = spentPointsRequestService.getAllSpentPointsRequestsByUserId(userId);
+        User user = userRepository.getUserByUserId(userId);
+        List<EarnedPointsRequest> earnedPointsRequestList = earnedPointsRequestService.getAllEarnedPointsRequestsByUserId(user.getFirstName() + " " + user.getLastName());
+        List<SpentPointsRequest> spentPointsRequestList = spentPointsRequestService.getAllSpentPointsRequestsByUserId(user.getFirstName() + " " + user.getLastName());
 
         UserDto userDto = new UserDto();
         userDto.setEarnedPointsRequest(earnedPointsRequestList);
         userDto.setSpentPointsRequest(spentPointsRequestList);
-        userDto.setTotalNoOfPoints(getAllPointsWhichAUserCanSpent(userId));
+        userDto.setTotalNoOfPoints(getAllPointsWhichAUserCanSpent(user.getFirstName() + " " + user.getLastName()));
 
         return userDto;
     }
 
-    public int getAllPointsWhichAUserCanSpent(String userId){
+    public int getAllPointsWhichAUserCanSpent(String requesterName){
         int totalPoints = 0;
-        int earnedPoints = earnedPointsRequestService.getAllEarnedPointsWhichAUserHas(userId);
-        int spentPoints = spentPointsRequestService.getAllSpentPointsWhichAUserHas(userId);
-
+        int earnedPoints = earnedPointsRequestService.getAllEarnedPointsWhichAUserHas(requesterName);
+        logger.info("LOG: earned points: " + earnedPoints);
+        int spentPoints = spentPointsRequestService.getAllSpentPointsWhichAUserHas(requesterName);
+        logger.info("LOG: spent points: " + spentPoints);
         if(Helper.comparePoints(earnedPoints, spentPoints)){
             totalPoints = earnedPoints - spentPoints;
             return totalPoints;
         }
         return totalPoints;
+    }
+
+    public List<String> getAllBeneficiariesName(){
+        // TODO: find a way to get from db only the needed data -- investigate @Query
+        List<String> beneficiariesName = new ArrayList<>();
+        List<User> users = userRepository.findAll();
+        for(User user : users){
+            beneficiariesName.add(user.getFirstName() + " " + user.getLastName());
+        }
+
+        return beneficiariesName;
+    }
+
+    public User getUserByFirstNameAndLastName(String firstName, String lastName){
+        return userRepository.getUserByFirstNameAndLastName(firstName, lastName);
+    }
+
+    public List<User> getAllUser(){
+        return userRepository.findAll();
     }
 }

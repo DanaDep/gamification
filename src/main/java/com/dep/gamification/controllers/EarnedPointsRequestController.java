@@ -16,7 +16,8 @@ public class EarnedPointsRequestController {
 
     @Autowired private EarnedPointsRequestService earnedPointsRequestService;
 
-    @PostMapping("/")
+    @CrossOrigin(origins = "http://localhost:4200")
+    @PostMapping
     public ResponseEntity<EarnedPointsRequest> createEarnedPointsRequest(@RequestBody EarnedPointsRequest earnedPointsRequest) {
         EarnedPointsRequest response = null;
         // TODO: implement a method which will check the payload
@@ -24,7 +25,7 @@ public class EarnedPointsRequestController {
             response = earnedPointsRequestService.createEarnedPointsRequest(earnedPointsRequest);
             return new ResponseEntity<EarnedPointsRequest>(response, HttpStatus.CREATED);
         }
-        return new ResponseEntity<EarnedPointsRequest>(response, HttpStatus.I_AM_A_TEAPOT);
+        return new ResponseEntity<EarnedPointsRequest>(response, HttpStatus.BAD_REQUEST);
     }
 
     @PutMapping("/{earnedPointsRequestId}/response")
@@ -34,14 +35,14 @@ public class EarnedPointsRequestController {
             response = earnedPointsRequestService.createEarnedPointsRequestResponse(earnedPointsRequestId, earnedPointsRequestResponse);
             return new ResponseEntity<EarnedPointsRequestResponse>(response, HttpStatus.OK);
         }
-        return new ResponseEntity<EarnedPointsRequestResponse>(response, HttpStatus.I_AM_A_TEAPOT);
+        return new ResponseEntity<EarnedPointsRequestResponse>(response, HttpStatus.BAD_REQUEST);
     }
 
-    @GetMapping("/earnedpointsrequest/{userId}")
+    @GetMapping("/{userId}")
     public @ResponseBody ResponseEntity<List<EarnedPointsRequest>> getAllEarnedPointsRequestsByUserId(@PathVariable String userId){
         List<EarnedPointsRequest> earnedPointsRequestList = null;
         // userId should be the id of the logged user
-        if(userId != null){
+        if(userId != null && userId.length() > 10){
             earnedPointsRequestList = earnedPointsRequestService.getAllEarnedPointsRequestsByUserId(userId);
             return new ResponseEntity<List<EarnedPointsRequest>>(earnedPointsRequestList,HttpStatus.OK);
         }

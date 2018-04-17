@@ -2,9 +2,18 @@ package com.dep.gamification.util;
 
 public class UserStatus {
 
+    private String userId;
     private String firstname;
     private String lastname;
     private int points;
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 
     public String getFirstname() {
         return firstname;

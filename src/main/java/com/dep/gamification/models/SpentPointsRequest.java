@@ -4,7 +4,6 @@ import com.dep.gamification.util.RequestState;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotNull;
 import java.util.Date;
@@ -20,7 +19,7 @@ public class SpentPointsRequest {
 
     private int pointsToBeSpent;
     private String reason;
-    private String comment;
+    private String details;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date crated = new Date();
@@ -63,12 +62,12 @@ public class SpentPointsRequest {
         this.reason = reason;
     }
 
-    public String getComment() {
-        return comment;
+    public String getDetails() {
+        return details;
     }
 
-    public void setComment(String comment) {
-        this.comment = comment;
+    public void setDetails(String details) {
+        this.details = details;
     }
 
     public Date getCrated() {

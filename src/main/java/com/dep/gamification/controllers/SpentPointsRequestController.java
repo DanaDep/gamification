@@ -16,7 +16,8 @@ public class SpentPointsRequestController {
 
     @Autowired private SpentPointsRequestService spentPointsRequestService;
 
-    @PostMapping("/")
+    @CrossOrigin(origins = "http://localhost:4200")
+    @PostMapping
     public ResponseEntity<String> createSpentPointsRequest(@RequestBody SpentPointsRequest spentPointsRequest){
         String response = null;
         // TODO: implement a method that will check the payload
@@ -24,7 +25,7 @@ public class SpentPointsRequestController {
             response = spentPointsRequestService.createSpendPointsRequest(spentPointsRequest);
             return new ResponseEntity<String>(response, HttpStatus.CREATED);
         }
-        return new ResponseEntity<String>(response, HttpStatus.I_AM_A_TEAPOT);
+        return new ResponseEntity<String>(response, HttpStatus.BAD_REQUEST);
     }
 
     @PutMapping("/{spentPointsRequestId}/response")
@@ -34,7 +35,7 @@ public class SpentPointsRequestController {
             response = spentPointsRequestService.createSpentPointsRequestResponse(spentPointsRequestId, spentPointsRequestResponse);
             return new ResponseEntity<SpentPointsRequestResponse>(response, HttpStatus.OK);
         }
-        return new ResponseEntity<SpentPointsRequestResponse>(response, HttpStatus.I_AM_A_TEAPOT);
+        return new ResponseEntity<SpentPointsRequestResponse>(response, HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping("/{userId}")

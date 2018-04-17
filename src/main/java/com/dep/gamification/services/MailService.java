@@ -19,7 +19,7 @@ public class MailService {
         mimeMessageHelper.setTo(to);
         mimeMessageHelper.setSubject(subject);
         mimeMessageHelper.setText(content);
-
+        mimeMessage.setFrom("zFoundServicesMail@haufe-lexware.com");
         javaMailSender.send(mimeMessage);
     }
 
